@@ -1,6 +1,6 @@
 # Kotlin SQL Mapper Sample
 
-Kotlin で各種 SQL マッパー／データアクセスライブラリ（Spring JDBC, Jdbi 3, jOOQ, MyBatis）のサンプルコードと検証テストを実装したリポジトリです。
+Kotlin で各種 SQL マッパー／データアクセスライブラリ（Spring JDBC, Jdbi 3, jOOQ, MyBatis, Hibernate）のサンプルコードと検証テストを実装したリポジトリです。
 
 すべてのサブプロジェクトで**同一のテーブルスキーマ**および**共通の検証シナリオ**を実装しており、ライブラリごとの書き味や特徴を直接比較できます。
 
@@ -17,15 +17,15 @@ Kotlin で各種 SQL マッパー／データアクセスライブラリ（Sprin
 
 ## 各フレームワークの比較まとめ
 
-| 項目 | Spring JDBC (`JdbcClient`) | Jdbi 3 | jOOQ | MyBatis |
-| :--- | :--- | :--- | :--- | :--- |
-| **パラダイム** | 関数型 / Fluent API | SqlObject (アノテーション) + Fluent | 型安全 SQL DSL (コード生成) | アノテーション + XML マッパー |
-| **型安全性** | 中（実行時 SQL パース） | 中（実行時バインド） | **最高**（コンパイル時にカラム・型チェック） | 中（XML / アノテーション定義） |
-| **Kotlin 親和性** | 高（データクラスの自動マッピング） | 高（`KotlinPlugin`, `@BindKotlin`） | **最高**（`jooq-kotlin`, Kotlin 生成コード） | 中〜高（`resultMap` に可変リスト等の注意が必要） |
-| **1対多 JOIN** | 手動で `ResultSetExtractor` 実装 | `RowReducer` または `scanResultSet` | **極めて強力**（`multiset()` による型安全マッピング） | **強力**（XML の `<collection>` 定義） |
-| **動的クエリ** | 文字列連結 / `StringBuilder` | 文字列構築 + パラメータバインド | **極めて強力**（`Condition` オブジェクトのリスト） | **強力**（XML の `<where>`, `<if>` タグ） |
-| **コード自動生成** | なし | なし | **あり**（DDL からコード生成） | オプション（MyBatis Generator 等） |
-| **おすすめ用途** | Spring Boot 標準でシンプルに済ませたい場合 | 軽量・非 Spring 環境でモダンな SQL を扱いたい場合 | 複雑なクエリ・型安全性を最重視する大規模エンタープライズ | 既存の SQL アセットや XML による柔軟なクエリ管理が必要な場合 |
+| 項目 | Spring JDBC (`JdbcClient`) | Jdbi 3 | jOOQ | MyBatis | Hibernate (JPA) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **パラダイム** | 関数型 / Fluent API | SqlObject (アノテーション) + Fluent | 型安全 SQL DSL (コード生成) | アノテーション + XML マッパー | ORマッパー (ORM) / オブジェクト指向操作 |
+| **型安全性** | 中（実行時 SQL パース） | 中（実行時バインド） | **最高**（コンパイル時にカラム・型チェック） | 中（XML / アノテーション定義） | 中〜高（JPQL は文字列、Criteria API は型安全） |
+| **Kotlin 親和性** | 高（データクラスの自動マッピング） | 高（`KotlinPlugin`, `@BindKotlin`） | **最高**（`jooq-kotlin`, Kotlin 生成コード） | 中〜高（`resultMap` に可変リスト等の注意が必要） | 中（`open class` や `kotlin-jpa`/no-arg、equals/hashCode の設計に注意） |
+| **1対多 JOIN** | 手動で `ResultSetExtractor` 実装 | `RowReducer` または `scanResultSet` | **極めて強力**（`multiset()` による型安全マッピング） | **強力**（XML の `<collection>` 定義） | **強力**（`@OneToMany` + `JOIN FETCH` による N+1 回避） |
+| **動的クエリ** | 文字列連結 / `StringBuilder` | 文字列構築 + パラメータバインド | **極めて強力**（`Condition` オブジェクトのリスト） | **強力**（XML の `<where>`, `<if>` タグ） | **強力**（`CriteriaBuilder` / `CriteriaQuery`） |
+| **コード自動生成** | なし | なし | **あり**（DDL からコード生成） | オプション（MyBatis Generator 等） | なし（DB からのリバース生成ツール等は存在） |
+| **おすすめ用途** | Spring Boot 標準でシンプルに済ませたい場合 | 軽量・非 Spring 環境でモダンな SQL を扱いたい場合 | 複雑なクエリ・型安全性を最重視する大規模エンタープライズ | 既存の SQL アセットや XML による柔軟なクエリ管理が必要な場合 | オブジェクト指向モデリング・DDD を重視し、エンティティ操作を中心にしたい場合 |
 
 ---
 
@@ -51,6 +51,11 @@ Kotlin で各種 SQL マッパー／データアクセスライブラリ（Sprin
 - **特徴**: `@Mapper` インターフェースと XML マッパー（`<collection>`, `<if>`）を連携させた王道スタイル。
 - **コード例**: [`UserMapper.kt`](file:///Users/atsushi-kitazawa/workspace/kotlin/sql-mapper-sample/mybatis/src/main/kotlin/sample/mybatis/mapper/UserMapper.kt), [`UserMapper.xml`](file:///Users/atsushi-kitazawa/workspace/kotlin/sql-mapper-sample/mybatis/src/main/resources/sample/mybatis/mapper/UserMapper.xml)
 
+### 5. Hibernate (`:hibernate`)
+- **利用バージョン**: Hibernate ORM 6.6 / Spring Boot 3.4.1 (Spring Data JPA)
+- **特徴**: Jakarta Persistence (JPA) / Hibernate による ORM 実装。`@Entity` 定義、`EntityManager` による永続化操作、JPQL `JOIN FETCH` による N+1 回避、JPA `CriteriaBuilder` による動的クエリ、`SpringDataUserRepository` による Spring Data JPA の利用例を実装。
+- **コード例**: [`UserEntity.kt`](file:///Users/atsushi-kitazawa/workspace/kotlin/sql-mapper-sample/hibernate/src/main/kotlin/sample/hibernate/entity/UserEntity.kt), [`UserRepository.kt`](file:///Users/atsushi-kitazawa/workspace/kotlin/sql-mapper-sample/hibernate/src/main/kotlin/sample/hibernate/repository/UserRepository.kt), [`SpringDataUserRepository.kt`](file:///Users/atsushi-kitazawa/workspace/kotlin/sql-mapper-sample/hibernate/src/main/kotlin/sample/hibernate/repository/SpringDataUserRepository.kt)
+
 ---
 
 ## 開発環境と実行方法
@@ -70,14 +75,15 @@ direnv allow
 
 ```bash
 # 全サブプロジェクトのテストを一括実行
-./gradlew test
+nix develop --command ./gradlew test
 
 # 特定のサブプロジェクトのみテスト実行
-./gradlew :spring-jdbc:test
-./gradlew :jdbi:test
-./gradlew :jooq:test
-./gradlew :mybatis:test
+nix develop --command ./gradlew :spring-jdbc:test
+nix develop --command ./gradlew :jdbi:test
+nix develop --command ./gradlew :jooq:test
+nix develop --command ./gradlew :mybatis:test
+nix develop --command ./gradlew :hibernate:test
 
 # jOOQ コード生成の手動実行（schema.sql 変更時）
-./gradlew :jooq:generateJooq
+nix develop --command ./gradlew :jooq:generateJooq
 ```

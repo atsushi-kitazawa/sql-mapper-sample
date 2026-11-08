@@ -5,4 +5,5 @@ include(
     "jooq",
     "jdbi",
     "spring-jdbc",
+    "hibernate",
 )

@@ -8,6 +8,7 @@
 * jOOQ
 * JDBI
 * Spring JDBC
+* Hibernate
 
 # ディレクトリ構成
 
@@ -19,6 +20,7 @@
   - jooq
   - jdbi
   - spring-jdbc
+  - hibernate
 
 #　構成
 

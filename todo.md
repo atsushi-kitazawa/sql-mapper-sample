@@ -17,6 +17,7 @@
   - [x] `jooq`
   - [x] `jdbi`
   - [x] `spring-jdbc`
+  - [x] `hibernate`
 
 ## 3. 共通データベース仕様・テストシナリオの定義
 - [x] 使用する RDBMS の選定（H2 Database インメモリ / PostgreSQL 互換モード）
@@ -47,6 +48,11 @@
 - [x] **MyBatis**
   - [x] プロジェクト設定・依存関係の追加（MyBatis-Spring-Boot-Starter 3.0.4, H2）
   - [x] マッパー（`UserMapper` インターフェース + XML マッパー）での共通シナリオの実装（CRUD, JOIN, 動的クエリ, トランザクション）
+  - [x] テストコード（JUnit 5）による動作確認
+- [x] **Hibernate**
+  - [x] プロジェクト設定・依存関係の追加（Spring Boot 3.4.1, Spring Data JPA / Hibernate 6.6, Kotlin JPA plugin, H2）
+  - [x] エンティティ定義（`UserEntity`, `OrderEntity`）とリポジトリ（`EntityManager`, JPQL `JOIN FETCH`, JPA `CriteriaBuilder`）での共通シナリオの実装（CRUD, JOIN, 動的クエリ, トランザクション）
+  - [x] Spring Data JPA リポジトリ（`SpringDataUserRepository`）の追加
   - [x] テストコード（JUnit 5）による動作確認
 
 ## 5. まとめ・ドキュメント作成
