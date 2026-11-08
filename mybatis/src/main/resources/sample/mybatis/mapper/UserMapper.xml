@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sample.mybatis.mapper.UserMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (name, email, created_at)
+        VALUES (#{name}, #{email}, #{createdAt})
+    </insert>
+
+    <select id="findById" resultType="sample.mybatis.model.User">
+        SELECT id, name, email, created_at
+        FROM users
+        WHERE id = #{id}
+    </select>
+
+    <update id="update">
+        UPDATE users
+        SET name = #{name}, email = #{email}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM users WHERE id = #{id}
+    </delete>
+
+    <resultMap id="UserWithOrdersMap" type="sample.mybatis.model.UserWithOrders">
+        <id property="id" column="user_id"/>
+        <result property="name" column="user_name"/>
+        <result property="email" column="user_email"/>
+        <result property="createdAt" column="user_created_at"/>
+        <collection property="orders" ofType="sample.mybatis.model.Order">
+            <id property="id" column="order_id"/>
+            <result property="userId" column="user_id"/>
+            <result property="orderCode" column="order_code"/>
+            <result property="amount" column="order_amount"/>
+            <result property="status" column="order_status"/>
+            <result property="orderedAt" column="order_ordered_at"/>
+        </collection>
+    </resultMap>
+
+    <select id="findWithOrders" resultMap="UserWithOrdersMap">
+        SELECT
+            u.id AS user_id,
+            u.name AS user_name,
+            u.email AS user_email,
+            u.created_at AS user_created_at,
+            o.id AS order_id,
+            o.order_code AS order_code,
+            o.amount AS order_amount,
+            o.status AS order_status,
+            o.ordered_at AS order_ordered_at
+        FROM users u
+        LEFT JOIN orders o ON u.id = o.user_id
+        WHERE u.id = #{userId}
+        ORDER BY o.id
+    </select>
+
+    <select id="search" resultType="sample.mybatis.model.User">
+        SELECT id, name, email, created_at
+        FROM users
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="email != null and email != ''">
+                AND email LIKE CONCAT('%', #{email}, '%')
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+
+</mapper>

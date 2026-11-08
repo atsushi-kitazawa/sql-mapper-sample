@@ -1,0 +1,20 @@
+# Nix / direnv
+.direnv/
+result
+result-*
+
+# Gradle
+.gradle/
+build/
+**/build/
+
+# IDE / Editor
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
